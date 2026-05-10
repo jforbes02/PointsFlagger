@@ -1,5 +1,4 @@
 import os
-
 from dotenv import load_dotenv
 import requests
 from datetime import datetime, timezone
@@ -12,6 +11,7 @@ ODDS_FORMAT = 'american'
 DATE_FORMAT = 'unix'
 MARKET = 'player_points'
 
+events_cache: list[dict]  = []
 
 def fetch_events() -> list[dict]:
     """ fetch events from odds api """
@@ -24,21 +24,22 @@ def fetch_events() -> list[dict]:
 
     return events_response.json()
 
-def get_earliest_commence_time() -> datetime:
+def get_commence_times() -> tuple[datetime, datetime]:
     """ fetch earliest NBA commence time """
-    events = fetch_events()
-    earliest = min(events, key=lambda e: e['commence_time'])
-    return earliest['commence_time']
+    earliest = min(events_cache, key=lambda e: e['commence_time'])
+    latest = max(events_cache, key=lambda e: e['commence_time'])
+    scan_start = datetime.fromtimestamp(earliest['commence_time'] - 3600, tz=timezone.utc) #1 hour early
+    scan_end = datetime.fromtimestamp(latest['commence_time'] + 9000, tz=timezone.utc) #around time for end 2.5 hours
+    return scan_start, scan_end
 
 def odds_data() -> dict:
     """ fetch odds data for three games from odds api from the events we fetched from the odds api"""
-    events = fetch_events()
-    if not events:
-        raise ValueError(f"No nba events found from odds api today: {events}")
+    if not events_cache:
+        raise ValueError("No nba events found from odds api today")
 
     odds_dict = {} #holds player odds
 
-    for event in events[:3]: #3 games to limit API calls for now
+    for event in events_cache[:3]: #3 games to limit API calls for now
         event_id = event['id'] #unique id for each event for odds_response
 
         try:
@@ -74,9 +75,6 @@ def odds_data() -> dict:
                 else:
                     odds_dict[player]['under'] = out['price']
     return odds_dict
-
-#print(fetch_events())
-
 
 if __name__ == "__main__":
     odds_data()
