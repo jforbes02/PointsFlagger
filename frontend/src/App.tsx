@@ -36,7 +36,7 @@ function App() {
         const oddsJson = await oddsRes.json()
         const flagsJson = await flagsRes.json()
         setOdds(oddsJson)
-        setFlags(flagsJson.flags)
+        setFlags(flagsJson)
         setLastUpdated(new Date())
       } catch (e) {
         setError('Failed to fetch data. Is the server running?')
