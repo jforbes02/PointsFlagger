@@ -603,3 +603,8 @@ When using Lambda Functions the return should be in this format
     }
 ```
 My endpoint wasn't working but now it is
+
+
+Okay so I got the website to work now its time for deployment
+
+Im going to be using Render to deploy the backend
