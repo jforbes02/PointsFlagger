@@ -3,7 +3,7 @@ import os
 import json
 from cache import refresh_odds
 from odds_producer import get_commence_times
-from datetime import datetime
+from datetime import datetime, timezone
 
 
 def get_redis():
@@ -27,7 +27,7 @@ def lambda_handler(event, context):
 
     if window:
         window = json.loads(window)
-        now = datetime.now(datetime.timezone.utc)
+        now = datetime.now(timezone.utc)
         start = datetime.fromisoformat(window['start'])
         end = datetime.fromisoformat(window['end'])
         if not (start <= now <= end):
