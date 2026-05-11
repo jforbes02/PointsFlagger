@@ -517,6 +517,89 @@ Error while fetching odds data for b537062ee0483d20ae932052628b663d: HTTPSConnec
 
 I might need to increase the time between calls
 
-Also, I wonder if I should clear the cache after the last game of the day but Then it would be a little trash for someone to come on the website and see nothing
+Also, I wonder if I should clear the cache after the last game of the day, but Then it would be a little trash for someone to come on the website and see nothing
+
+### AWS
+
+Now im going to be diving into a bunch of use cases and videos about AWS and see if and how I could implement them into this project.
+
+1. Cloudwatch + Lambda
+   - Serverless CRON jobs
+   - Potentially replaces apscheduler if I understand correctly
+2. SQS + Lambda
+   - Can be used for notification service for huge changes in data
+3. ElastiCache
+   - Found out that Redis needs to be converted to ElastiCache in order to go AWS
+   - In order for elasticache I need a VPC
+4. EC2
+   - EC2 is used to store security groups
+   - Security group is a firewall that controls what traffic goes in and out
+   - Basically we are going to say allow connections to Redis port "6379"
+
+### VPC
+- VPCs are private clouds
+
+### ElastiCache
+- I created my first ElastiCache instance
+- Created a security group that will allow ElastiCache and Lambda to communicate
 
 
+### Lambda
+- A Lambda function is a piece of code triggered by something
+
+# DAY 7
+Continuing to work on AWS
+Im trying to get a lambda version of refresh_odds so that it can utilize ElastiCache but I am getting errors.
+
+I have to switch from using a local events_cache: list[dict] = []
+
+Was dealing with some bugs with lambda but I got Redis to work with Lambda
+
+
+Ive learned with Lambda the Runtime Settings are important, all lambda handler function are in one file but the Runtime Settings handler setting determines which function will be ran
+
+VPCs dont have internet so a NAT gateway is needed!
+
+I got both of the functions to work now
+
+### NAT, VPC, Lambda, Route Tables, Subnets
+- In this project I decided to utilize Redis so ElastiCache is a must if I want to implement AWS 
+- While creating my first Lambda functions there was a few issues with testing errors
+- NATs are Network Address Translation's
+- These allow for internet access for multiple tools in the VPC (VPC inherently don't have internet)
+- Subnets are parts of the VPC 
+- Public Subnets use the Internet Gateway to access the internet
+- Private Subnets go through the NAT gateway where AWS services like Lambda and Elasticache live
+- For outside the VPC requests Route Tables are used for outside traffic from instances like odds-api
+
+
+Now Im going to implement the scheduling by using 
+
+### EventBridge
+- EventBridge is super easy to use
+- You create the schedule then implement it with Lambda Invoke
+- 
+
+###Lambda
+- The Lambda Functions are working
+
+So im starting to realize that not much code is needed in my main.py
+The workflow is interesting because its
+EventBridge → Lambda → ElastiCache → FastAPI
+
+The FastApi server doesn't ever come in contact with lambda which is pretty cool to me
+
+Tried to run the fastapi server endpoints but infinite loop
+
+I asked Claude why this is and it say that I may benefit from creating lambdas that get the elasticache data
+then connecting the fastapi to that which makes sense to me.
+
+When using Lambda Functions the return should be in this format
+```
+    return {
+        'statusCode': 200,
+        'headers': {'Content-Type': 'application/json'},
+        'body': data or '{}'
+    }
+```
+My endpoint wasn't working but now it is

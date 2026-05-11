@@ -1,4 +1,7 @@
 import os
+import json
+import redis
+
 from dotenv import load_dotenv
 import requests
 from datetime import datetime, timezone
@@ -11,7 +14,6 @@ ODDS_FORMAT = 'american'
 DATE_FORMAT = 'unix'
 MARKET = 'player_points'
 
-events_cache: list[dict]  = []
 
 def fetch_events() -> list[dict]:
     """ fetch events from odds api """
@@ -24,16 +26,26 @@ def fetch_events() -> list[dict]:
 
     return events_response.json()
 
-def get_commence_times() -> tuple[datetime, datetime]:
+def fetch_plus_cache(r: redis.Redis) -> list[dict]:
+    events = fetch_events()
+    r.set('events', json.dumps(events))
+    return events
+
+def get_commence_times(r: redis.Redis) -> tuple[datetime, datetime]:
     """ fetch earliest NBA commence time """
+    events_cache = json.loads(r.get('events'))
+
     earliest = min(events_cache, key=lambda e: e['commence_time'])
     latest = max(events_cache, key=lambda e: e['commence_time'])
     scan_start = datetime.fromtimestamp(earliest['commence_time'] - 3600, tz=timezone.utc) #1 hour early
     scan_end = datetime.fromtimestamp(latest['commence_time'] + 9000, tz=timezone.utc) #around time for end 2.5 hours
     return scan_start, scan_end
 
-def odds_data() -> dict:
+def odds_data(r: redis.Redis) -> dict:
     """ fetch odds data for three games from odds api from the events we fetched from the odds api"""
+    events_cache = json.loads(r.get('events'))
+
+
     if not events_cache:
         raise ValueError("No nba events found from odds api today")
 
@@ -55,6 +67,7 @@ def odds_data() -> dict:
                 timeout=10 #10 seconds to fetch
             )
             odds_response.raise_for_status()
+            print(odds_response.json())
         except requests.exceptions.Timeout:
             print(f"Timeout while fetching odds data for {event_id}")
             continue
@@ -77,4 +90,5 @@ def odds_data() -> dict:
     return odds_dict
 
 if __name__ == "__main__":
-    odds_data()
+    fetch_plus_cache(r=redis.Redis(host="localhost", port=6379))
+    print(get_commence_times(r=redis.Redis(host="localhost", port=6379)))

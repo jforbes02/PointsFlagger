@@ -44,7 +44,7 @@ def compare_odds(old: dict, new: dict) -> list:
 
 def refresh_odds(r: redis.Redis) -> list:
     old_data = r.get('odds')
-    new_data = odds_data()
+    new_data = odds_data(r)
     flags = []
     if old_data:
         flags = compare_odds(json.loads(old_data), new_data)
@@ -52,4 +52,4 @@ def refresh_odds(r: redis.Redis) -> list:
     return flags
 
 if __name__ == "__main__":
-    cache_data(redis.Redis(host="localhost", port=6379), player_data=odds_data())
+    print(cache_data(redis.Redis(host="localhost", port=6379), player_data=odds_data(r=redis.Redis(host="localhost", port=6379))))
