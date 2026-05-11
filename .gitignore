@@ -1,1 +1,20 @@
 /.env
+
+# Lambda deployment artifacts
+lambda_refresh_odds/*.dist-info/
+lambda_refresh_odds/certifi/
+lambda_refresh_odds/charset_normalizer/
+lambda_refresh_odds/dotenv/
+lambda_refresh_odds/idna/
+lambda_refresh_odds/redis/
+lambda_refresh_odds/requests/
+lambda_refresh_odds/urllib3/
+lambda_refresh_odds/bin/
+lambda_refresh_odds/__pycache__/
+lambda_refresh_odds/*.so
+refresh_odds.zip
+
+# General
+__pycache__/
+*.pyc
+dump.rdb
