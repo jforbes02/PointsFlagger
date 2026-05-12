@@ -31,17 +31,22 @@ function App() {
   useEffect(() => {
     async function fetchData() {
       try {
-        const [oddsRes, flagsRes, nextGameRes] = await Promise.all([
+        const [oddsRes, flagsRes] = await Promise.all([
           fetch('/api/odds'),
           fetch('/api/flags'),
-          fetch('/api/next-game'),
         ])
         const oddsJson = await oddsRes.json()
         const flagsJson = await flagsRes.json()
-        const nextGameJson = await nextGameRes.json()
         setOdds(oddsJson)
         setFlags(flagsJson)
-        setNextGame(Object.keys(nextGameJson).length ? nextGameJson : null)
+
+        try {
+          const nextGameRes = await fetch('/api/next-game')
+          const nextGameJson = await nextGameRes.json()
+          setNextGame(Object.keys(nextGameJson).length ? nextGameJson : null)
+        } catch {
+          setNextGame(null)
+        }
         setLastUpdated(new Date())
       } catch (e) {
         setError('Failed to fetch data. Is the server running?')
