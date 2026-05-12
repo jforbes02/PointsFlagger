@@ -130,3 +130,12 @@ tr:hover td {
   color: #555;
   font-size: 0.9rem;
 }
+
+.next-game {
+  background: #1a1d27;
+  border-radius: 8px;
+  padding: 1.5rem;
+  margin-bottom: 2rem;
+  color: #e0e0e0;
+  line-height: 1.8;
+}

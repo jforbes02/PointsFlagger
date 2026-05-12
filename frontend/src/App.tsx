@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import './App.css'
 
 type OddsData = Record<string, { over: number; under: number; point: number }>
+type NextGame = { home_team: string; away_team: string; commence_time: number } | null
 
 function formatOdds(value: number): string {
   return value > 0 ? `+${value}` : `${value}`
@@ -25,18 +26,22 @@ function App() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [lastUpdated, setLastUpdated] = useState<Date | null>(null)
+  const [nextGame, setNextGame] = useState<NextGame>(null)
 
   useEffect(() => {
     async function fetchData() {
       try {
-        const [oddsRes, flagsRes] = await Promise.all([
+        const [oddsRes, flagsRes, nextGameRes] = await Promise.all([
           fetch('/api/odds'),
           fetch('/api/flags'),
+          fetch('/api/next-game'),
         ])
         const oddsJson = await oddsRes.json()
         const flagsJson = await flagsRes.json()
+        const nextGameJson = await nextGameRes.json()
         setOdds(oddsJson)
         setFlags(flagsJson)
+        setNextGame(Object.keys(nextGameJson).length ? nextGameJson : null)
         setLastUpdated(new Date())
       } catch (e) {
         setError('Failed to fetch data. Is the server running?')
@@ -61,6 +66,14 @@ function App() {
 
       {loading && <p className="empty">Loading...</p>}
       {error && <p className="empty">{error}</p>}
+
+      {!loading && !error && Object.keys(odds).length === 0 && nextGame && (
+        <div className="next-game">
+          <p>No games in progress.</p>
+          <p>Next game: <strong>{nextGame.away_team} @ {nextGame.home_team}</strong></p>
+          <p>{new Date(nextGame.commence_time * 1000).toLocaleString()}</p>
+        </div>
+      )}
 
       {!loading && !error && (
         <>

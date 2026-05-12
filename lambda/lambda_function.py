@@ -37,6 +37,29 @@ def lambda_handler(event, context):
     r.set('flags', json.dumps(flags))
     return {'statusCode': 200, 'flags': flags}
 
+def get_next_game_handler(event, context):
+    r = get_redis()
+    data = r.get('events')
+    if not data:
+        return {'statusCode': 200, 'headers': {'Content-Type': 'application/json'}, 'body': '{}'}
+
+    events = json.loads(data)
+    now = datetime.now(timezone.utc).timestamp()
+    future_events = [e for e in events if e['commence_time'] > now]
+    if not future_events:
+        return {'statusCode': 200, 'headers': {'Content-Type': 'application/json'}, 'body': '{}'}
+
+    next_event = min(future_events, key=lambda e: e['commence_time'])
+    return {
+        'statusCode': 200,
+        'headers': {'Content-Type': 'application/json'},
+        'body': json.dumps({
+            'home_team': next_event['home_team'],
+            'away_team': next_event['away_team'],
+            'commence_time': next_event['commence_time']
+        })
+    }
+
 def get_flags_handler(event, context):
     r = get_redis()
     data = r.get('flags')

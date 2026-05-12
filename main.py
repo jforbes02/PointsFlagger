@@ -13,6 +13,7 @@ r = redis.Redis(host=os.environ.get("ELASTICACHE_ENDPOINT", "localhost"), port=6
 #Endpoints AWS
 ODDS_URL = os.environ.get("GET_ODDS", "localhost")
 FLAGS_URL = os.environ.get("GET_FLAGS", "localhost")
+NEXT_GAME_URL = os.environ.get("GET_NEXT_GAME", "localhost")
 app = FastAPI()
 
 @app.get("/")
@@ -31,6 +32,11 @@ async def get_odds():
 @app.get("/flags")
 async def get_flags():
     response = httpx.get(FLAGS_URL)
+    return response.json()
+
+@app.get("/next-game")
+async def get_next_game():
+    response = httpx.get(NEXT_GAME_URL)
     return response.json()
 
 
