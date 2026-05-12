@@ -13,7 +13,7 @@ export default defineConfig({
   server: {
     proxy: {
       '/api': {
-        target: 'http://localhost:8000',
+        target: 'https://justinsoddsflagger.onrender.com',
         rewrite: (path) => path.replace(/^\/api/, ''),
       },
     },
