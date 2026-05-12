@@ -611,4 +611,5 @@ Im going to be using Render to deploy the backend Vercel for frontend
 
 Will def rename and clean up the directory after rename
 
-I think that
+Getting some errors with the next game functionality but the app works and is running !
+
