@@ -71,7 +71,7 @@ function App() {
         <div className="next-game">
           <p>No games in progress.</p>
           <p>Next game: <strong>{nextGame.away_team} @ {nextGame.home_team}</strong></p>
-          <p>{new Date(nextGame.commence_time * 1000).toLocaleString()}</p>
+          <p>{new Date(nextGame.commence_time * 1000).toLocaleString('en-US', { weekday: 'long', month: 'long', day: 'numeric', hour: 'numeric', minute: '2-digit', timeZoneName: 'short' })}</p>
         </div>
       )}
 

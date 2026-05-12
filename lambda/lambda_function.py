@@ -53,11 +53,11 @@ def get_next_game_handler(event, context):
     return {
         'statusCode': 200,
         'headers': {'Content-Type': 'application/json'},
-        'body': json.dumps({
+        'body': {
             'home_team': next_event['home_team'],
             'away_team': next_event['away_team'],
-            'commence_time': next_event['commence_time']
-        })
+            'commence_time': next_event['commence_time'],
+        }
     }
 
 def get_flags_handler(event, context):
