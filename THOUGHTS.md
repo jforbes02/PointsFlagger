@@ -608,3 +608,7 @@ My endpoint wasn't working but now it is
 Okay so I got the website to work now its time for deployment
 
 Im going to be using Render to deploy the backend Vercel for frontend
+
+Will def rename and clean up the directory after rename
+
+I think that
